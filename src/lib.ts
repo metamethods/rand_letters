@@ -71,9 +71,11 @@ async function randomBackground(): Promise<[Buffer, string]> {
 }
 
 export async function createImage(word: string): Promise<Buffer> {
+  console.log(resolve(join(FONTS_PATH, 'cmu-classical-serif.ttf')));
+
   const cmuSerifExtraFont = {
-    font: 'CMU Serif Extra',
-    fontfile: resolve(join(FONTS_PATH, 'cmu-serif-extra.ttf')),
+    font: 'italic',
+    fontfile: resolve(join(FONTS_PATH, 'cmu-classical-serif.ttf')),
   };
 
   const [background, backgroundPath] = await randomBackground();
@@ -97,9 +99,10 @@ export async function createImage(word: string): Promise<Buffer> {
       {
         input: {
           text: {
-            text: `<span foreground="${textColor}" size="24pt"><b>2-5 Random Letters Every 10 minutes
-            @5letters.bsky.social</b></span>`,
+            text: `<span foreground="${textColor}" size="24pt">2-5 Random Letters Every 10 minutes
+@5letters.bsky.social</span>`,
             rgba: true,
+            align: 'right',
             ...cmuSerifExtraFont,
           },
         },
