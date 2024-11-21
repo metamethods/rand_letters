@@ -9,7 +9,7 @@ const redisClient = await createClient({
 
 const bskyClient = await atprotoAgent(
   Bun.env.BSKY_SERVICE,
-  Bun.env.BSKY_EMAIL,
+  Bun.env.BSKY_USERNAME,
   Bun.env.BSKY_PASSWORD
 );
 
