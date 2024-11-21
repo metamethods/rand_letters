@@ -14,7 +14,7 @@
         "sharp": "^0.33.5"
     },
     "scripts": {
-        "build": "bun build src/index.ts --outdir=build --target=bun && cp resources build/resources",
+        "build": "bun build src/index.ts --outdir=build --target=bun",
         "start": "bun out/index.js",
         "dev": "bun src/index.ts"
     }
