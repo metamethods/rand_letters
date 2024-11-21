@@ -20,7 +20,7 @@ Bun.file('preview.png').writer().write(image);
 
 const { data } = await bskyClient.uploadBlob(new Blob([image]));
 
-bskyClient.post({
+await bskyClient.post({
   text: word,
   embed: {
     $type: 'app.bsky.embed.images',
@@ -33,4 +33,4 @@ bskyClient.post({
   },
 });
 
-redisClient.disconnect();
+await redisClient.disconnect();
