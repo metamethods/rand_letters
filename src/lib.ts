@@ -100,7 +100,7 @@ export async function createImage(word: string): Promise<Buffer> {
         input: {
           text: {
             text: `<span foreground="${textColor}" size="24pt">2-5 Random Letters Every 10 minutes
-@5letters.bsky.social</span>`,
+@5nletters.bsky.social</span>`,
             rgba: true,
             align: 'right',
             ...cmuSerifExtraFont,
