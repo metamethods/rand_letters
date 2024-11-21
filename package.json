@@ -1,0 +1,21 @@
+{
+    "name": "rand_letters",
+    "module": "index.ts",
+    "type": "module",
+    "devDependencies": {
+        "@types/bun": "latest"
+    },
+    "peerDependencies": {
+        "typescript": "^5.0.0"
+    },
+    "dependencies": {
+        "@atproto/api": "^0.13.16",
+        "redis": "^4.7.0",
+        "sharp": "^0.33.5"
+    },
+    "scripts": {
+        "build": "bun build src/index.ts --outdir=build --target=bun && cp resources build/resources",
+        "start": "bun out/index.js",
+        "dev": "bun src/index.ts"
+    }
+}
