@@ -12,7 +12,8 @@ const BACKGROUNDS_PATH = join(ASSETS_DIRECTORY, 'backgrounds');
 const FONTS_PATH = join(ASSETS_DIRECTORY, 'fonts');
 
 const TEXT_COLOR_OVERRIDES: { [key: string]: string } = {
-  'rex.png': '#ffffff',
+  'rex.png': '#c6d0f5',
+  'numbers-dark.png': '#c6d0f5',
 };
 
 export async function atprotoAgent(
