@@ -76,7 +76,9 @@ function loadFont(
 }
 
 export async function createImage(word: string): Promise<Buffer> {
-  const cmuSerifExtraFont = loadFont('cmu-classical-serif.ttf', 'italic');
+  const cmuSerifExtraFont = resolve(
+    join(FONTS_PATH, 'cmu-classical-serif.ttf')
+  );
 
   const backgroundPath = await randomBackground();
   const textColor = /\.dark\.[a-z]+$/.exec(backgroundPath)
@@ -90,25 +92,50 @@ export async function createImage(word: string): Promise<Buffer> {
     })
     .composite([
       {
-        input: {
-          text: {
-            text: `<span foreground="${textColor}" size="128pt">${word}</span>`,
-            rgba: true,
-            ...cmuSerifExtraFont,
-          },
-        },
-      },
-      {
-        input: {
-          text: {
-            text: `<span foreground="${textColor}" size="24pt">${Bun.env.IMAGE_TEXT}
-@${Bun.env.BSKY_USERNAME}</span>`,
-            rgba: true,
-            align: 'right',
-            ...cmuSerifExtraFont,
-          },
-        },
-        gravity: 'southeast',
+        input: Buffer.from(`
+          <svg width="100%" height="100%" viewBox="0 0 960 540">
+            <defs>
+              <style>
+                @font-face {
+                  font-family: "CMUClassicalSerif";
+                  src: url("${cmuSerifExtraFont}") format("truetype");
+                }
+
+                text {
+                  font-family: CMUClassicalSerif, sans-serif;
+                }
+              </style>
+            </defs>
+
+            <text 
+              x="50%" 
+              y="50%"
+              dy="0.25em"
+              text-anchor="middle" 
+              font-size="128px" 
+              fill="${textColor}"
+            >${word}</text>
+
+            <text
+              x="100%"
+              y="100%"
+              dx="-1em"
+              dy="-1em"
+              text-anchor="end"
+              font-size="32px"
+              fill="${textColor}"
+            >${Bun.env.IMAGE_TEXT}</text>
+
+            <text
+              dx="1em"
+              dy="1.75em"
+              dominant-baseline="hanging"
+              text-anchor="start"
+              font-size="32px"
+              fill="${textColor}"
+            >@${Bun.env.BSKY_USERNAME}</text>
+          </svg>
+        `),
       },
     ])
     .png()
