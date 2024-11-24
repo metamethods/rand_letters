@@ -3,6 +3,7 @@ import sharp from 'sharp';
 import { createClient } from 'redis';
 import { join, resolve } from 'path';
 import { readdir } from 'node:fs/promises';
+import type { BunFile } from 'bun';
 
 // this is so dumb
 type RedisClientType = ReturnType<typeof createClient>;
@@ -10,11 +11,6 @@ type RedisClientType = ReturnType<typeof createClient>;
 const ASSETS_DIRECTORY = 'assets';
 const BACKGROUNDS_PATH = join(ASSETS_DIRECTORY, 'backgrounds');
 const FONTS_PATH = join(ASSETS_DIRECTORY, 'fonts');
-
-const TEXT_COLOR_OVERRIDES: { [key: string]: string } = {
-  'rex.png': '#c6d0f5',
-  'numbers-dark.png': '#c6d0f5',
-};
 
 export async function atprotoAgent(
   serviceUrl: string,
@@ -36,8 +32,8 @@ function generateLetter(): string {
   else return ['?', '!', '*'][value - 26];
 }
 
-function generateWord(): string {
-  const length = Math.floor(Math.random() * 4) + 2;
+function generateWord(min: number, max: number): string {
+  const length = Math.floor(Math.random() * (max - min + 1)) + min;
   return `${generateLetter().toUpperCase()}${Array.from(
     { length: length - 1 },
     generateLetter
@@ -45,43 +41,49 @@ function generateWord(): string {
 }
 
 export async function generateUniqueWord(
-  redisClient: RedisClientType
+  redisClient: RedisClientType,
+  min: number,
+  max: number
 ): Promise<string> {
-  let word = generateWord();
+  let word = generateWord(min, max);
 
   while (true)
-    if (await redisClient.get(word)) word = generateWord();
+    if (await redisClient.get(word)) word = generateWord(min, max);
     else break;
-
-  await redisClient.set(word, word);
 
   return word;
 }
 
-async function randomBackground(): Promise<[Buffer, string]> {
+async function randomBackground(): Promise<string> {
   const backgrounds = await readdir(BACKGROUNDS_PATH, {});
   const backgroundPath =
     backgrounds[Math.floor(Math.random() * backgrounds.length)];
-  return [
-    Buffer.from(
-      await Bun.file(join(BACKGROUNDS_PATH, backgroundPath)).arrayBuffer()
-    ),
-    backgroundPath,
-  ];
+  return join(BACKGROUNDS_PATH, backgroundPath);
+}
+
+async function loadImageFromFile(file: BunFile): Promise<Buffer> {
+  return Buffer.from(await file.arrayBuffer());
+}
+
+function loadFont(
+  fontfile: string,
+  font: string
+): { font: string; fontfile: string } {
+  return {
+    font,
+    fontfile: resolve(join(FONTS_PATH, fontfile)),
+  };
 }
 
 export async function createImage(word: string): Promise<Buffer> {
-  console.log(resolve(join(FONTS_PATH, 'cmu-classical-serif.ttf')));
+  const cmuSerifExtraFont = loadFont('cmu-classical-serif.ttf', 'italic');
 
-  const cmuSerifExtraFont = {
-    font: 'italic',
-    fontfile: resolve(join(FONTS_PATH, 'cmu-classical-serif.ttf')),
-  };
+  const backgroundPath = await randomBackground();
+  const textColor = /\.dark\.[a-z]+$/.exec(backgroundPath)
+    ? '#c6d0f5'
+    : '#1e1e2e';
 
-  const [background, backgroundPath] = await randomBackground();
-  const textColor = TEXT_COLOR_OVERRIDES[backgroundPath] || '#1e1e2e';
-
-  return sharp(background)
+  return sharp(await loadImageFromFile(Bun.file(backgroundPath)))
     .resize({
       width: 960,
       height: 540,
@@ -99,8 +101,8 @@ export async function createImage(word: string): Promise<Buffer> {
       {
         input: {
           text: {
-            text: `<span foreground="${textColor}" size="24pt">2-5 Random Letters Every 10 minutes
-@5nletters.bsky.social</span>`,
+            text: `<span foreground="${textColor}" size="24pt">${Bun.env.IMAGE_TEXT}
+@${Bun.env.BSKY_USERNAME}</span>`,
             rgba: true,
             align: 'right',
             ...cmuSerifExtraFont,
