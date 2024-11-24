@@ -15,8 +15,8 @@ const bskyClient = await atprotoAgent(
 
 const word = await generateUniqueWord(
   redisClient,
-  Bun.env.WORD_MIN,
-  Bun.env.WORD_MAX
+  Number(Bun.env.WORD_MIN),
+  Number(Bun.env.WORD_MAX)
 );
 const image = await createImage(word);
 

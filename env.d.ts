@@ -6,8 +6,8 @@ declare global {
       BSKY_PASSWORD: string;
 
       IMAGE_TEXT: string;
-      WORD_MIN: number;
-      WORD_MAX: number;
+      WORD_MIN: string;
+      WORD_MAX: string;
 
       REDIS_DATABASE: string;
     }
