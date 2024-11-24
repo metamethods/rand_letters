@@ -13,7 +13,11 @@ const bskyClient = await atprotoAgent(
   Bun.env.BSKY_PASSWORD
 );
 
-const word = await generateUniqueWord(redisClient);
+const word = await generateUniqueWord(
+  redisClient,
+  Bun.env.WORD_MIN,
+  Bun.env.WORD_MAX
+);
 const image = await createImage(word);
 
 Bun.file('preview.png').writer().write(image);
@@ -33,4 +37,5 @@ await bskyClient.post({
   },
 });
 
+await redisClient.set(word, word);
 await redisClient.disconnect();
