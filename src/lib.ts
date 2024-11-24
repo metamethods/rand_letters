@@ -65,16 +65,6 @@ async function loadImageFromFile(file: BunFile): Promise<Buffer> {
   return Buffer.from(await file.arrayBuffer());
 }
 
-function loadFont(
-  fontfile: string,
-  font: string
-): { font: string; fontfile: string } {
-  return {
-    font,
-    fontfile: resolve(join(FONTS_PATH, fontfile)),
-  };
-}
-
 export async function createImage(word: string): Promise<Buffer> {
   const cmuSerifExtraFont = resolve(
     join(FONTS_PATH, 'cmu-classical-serif.ttf')
