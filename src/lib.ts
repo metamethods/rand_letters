@@ -88,7 +88,7 @@ export async function createImage(word: string): Promise<Buffer> {
               <style>
                 @font-face {
                   font-family: "CMUClassicalSerif";
-                  src: url("${cmuSerifExtraFont}") format("truetype");
+                  src: local("${cmuSerifExtraFont}") format("truetype");
                 }
 
                 text {
