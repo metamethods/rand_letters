@@ -66,9 +66,10 @@ async function loadImageFromFile(file: BunFile): Promise<Buffer> {
 }
 
 export async function createImage(word: string): Promise<Buffer> {
-  const cmuSerifExtraFont = resolve(
-    join(FONTS_PATH, 'cmu-classical-serif.ttf')
-  );
+  const font = {
+    font: 'Plus Jakarta Sans Bold',
+    fontfile: resolve(join(FONTS_PATH, 'plus-jakarta-sans.ttf')),
+  };
 
   const backgroundPath = await randomBackground();
   const textColor = /\.dark\.[a-z]+$/.exec(backgroundPath)
@@ -82,50 +83,48 @@ export async function createImage(word: string): Promise<Buffer> {
     })
     .composite([
       {
-        input: Buffer.from(`
-          <svg width="100%" height="100%" viewBox="0 0 960 540">
-            <defs>
-              <style>
-                @font-face {
-                  font-family: "CMUClassicalSerif";
-                  src: local("${cmuSerifExtraFont}") format("truetype");
-                }
-
-                text {
-                  font-family: CMUClassicalSerif, sans-serif;
-                }
-              </style>
-            </defs>
-
-            <text 
-              x="50%" 
-              y="50%"
-              dy="0.25em"
-              text-anchor="middle" 
-              font-size="128px" 
-              fill="${textColor}"
-            >${word}</text>
-
-            <text
-              x="100%"
-              y="100%"
-              dx="-1em"
-              dy="-1em"
-              text-anchor="end"
-              font-size="32px"
-              fill="${textColor}"
-            >${Bun.env.IMAGE_TEXT}</text>
-
-            <text
-              dx="1em"
-              dy="1.75em"
-              dominant-baseline="hanging"
-              text-anchor="start"
-              font-size="32px"
-              fill="${textColor}"
-            >@${Bun.env.BSKY_USERNAME}</text>
-          </svg>
-        `),
+        input: await sharp({
+          text: {
+            text: `<span foreground="${textColor}" font-size="1024pt">${word}</span>`,
+            rgba: true,
+            ...font,
+          },
+        })
+          .resize({
+            width: 832,
+            height: 96,
+            fit: 'inside',
+          })
+          .png()
+          .toBuffer(),
+      },
+      {
+        input: {
+          text: {
+            text: `<span foreground="${textColor}" size="32pt">${Bun.env.IMAGE_TEXT}</span>`,
+            rgba: true,
+            ...font,
+          },
+        },
+        top: 16,
+        left: 20,
+      },
+      {
+        input: await sharp({
+          text: {
+            text: `<span foreground="${textColor}" size="32pt">@${Bun.env.BSKY_USERNAME}</span>`,
+            rgba: true,
+            ...font,
+          },
+        })
+          .extend({
+            right: 20,
+            bottom: 16,
+            background: '#0000',
+          })
+          .png()
+          .toBuffer(),
+        gravity: 'southeast',
       },
     ])
     .png()
