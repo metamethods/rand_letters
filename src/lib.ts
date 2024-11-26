@@ -1,5 +1,5 @@
 import { Agent, CredentialSession } from '@atproto/api';
-import sharp from 'sharp';
+import sharp, { fit } from 'sharp';
 import { createClient } from 'redis';
 import { join, resolve } from 'path';
 import { readdir } from 'node:fs/promises';
@@ -85,15 +85,16 @@ export async function createImage(word: string): Promise<Buffer> {
       {
         input: await sharp({
           text: {
-            text: `<span foreground="${textColor}" font-size="1024pt">${word}</span>`,
+            text: `<span foreground="${textColor}" font-size="96pt">${word}</span>`,
             rgba: true,
             ...font,
           },
         })
           .resize({
             width: 832,
-            height: 96,
-            fit: 'inside',
+            height: 540,
+            fit: fit.inside,
+            withoutEnlargement: true,
           })
           .png()
           .toBuffer(),
