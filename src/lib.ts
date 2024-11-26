@@ -32,7 +32,7 @@ function generateLetter(): string {
   else return ['?', '!', '*'][value - 26];
 }
 
-function generateWord(min: number, max: number): string {
+export function generateWord(min: number, max: number): string {
   const length = Math.floor(Math.random() * (max - min + 1)) + min;
   return `${generateLetter().toUpperCase()}${Array.from(
     { length: length - 1 },
